@@ -8,7 +8,9 @@
 #include <IVRDevice.hpp>
 #include <DriverFactory.hpp>
 
+#if defined(win32)
 #include <windows.h>
+#endif
 #include <thread>
 #include <sstream>
 #include <iostream>
@@ -43,8 +45,10 @@ namespace SlimeVRDriver {
         bool isSetup;
 
         char buffer[1024];
+        #if defined(win32)
         DWORD dwWritten;
         DWORD dwRead;
+        #endif
 		int deviceId_;
         TrackerRole trackerRole;
 

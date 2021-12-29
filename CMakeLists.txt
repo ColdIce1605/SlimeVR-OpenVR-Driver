@@ -99,6 +99,7 @@ add_custom_command(
 )
 
 # Copy libprotobuf dll to output folder
+if(WIN32)
 add_custom_command(
     TARGET ${PROJECT_NAME} 
     POST_BUILD
@@ -106,3 +107,6 @@ add_custom_command(
     $<TARGET_FILE_DIR:${PROJECT_NAME}>/libprotobuf.dll
     $<TARGET_FILE_DIR:${PROJECT_NAME}>/driver/${DRIVER_NAME}/bin/${PLATFORM_NAME}${PROCESSOR_ARCH}/libprotobuf.dll
 )
+else()
+#Might need to link the dep here somehow
+endif() 
