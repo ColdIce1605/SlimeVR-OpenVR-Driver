@@ -1,6 +1,7 @@
 #include "ControllerDevice.hpp"
+#if defined(win32)
 #include <Windows.h>
-
+#endif
 SlimeVRDriver::ControllerDevice::ControllerDevice(std::string serial, int deviceId, ControllerDevice::Handedness handedness):
     serial_(serial), handedness_(handedness), deviceId_(deviceId)
 {
@@ -76,6 +77,7 @@ void SlimeVRDriver::ControllerDevice::Update()
 
     // Check if we need to press any buttons (I am only hooking up the A button here but the process is the same for the others)
     // You will still need to go into the games button bindings and hook up each one (ie. a to left click, b to right click, etc.) for them to work properly
+    #if defined(win32)
     if (GetAsyncKeyState(0x45 /* E */) != 0) {
         GetDriver()->GetInput()->UpdateBooleanComponent(this->a_button_click_component_, true, 0);
         GetDriver()->GetInput()->UpdateBooleanComponent(this->a_button_touch_component_, true, 0);
@@ -84,6 +86,7 @@ void SlimeVRDriver::ControllerDevice::Update()
         GetDriver()->GetInput()->UpdateBooleanComponent(this->a_button_click_component_, false, 0);
         GetDriver()->GetInput()->UpdateBooleanComponent(this->a_button_touch_component_, false, 0);
     }
+    #endif
 
     // Post pose
     GetDriver()->GetDriverHost()->TrackedDevicePoseUpdated(this->device_index_, pose, sizeof(vr::DriverPose_t));

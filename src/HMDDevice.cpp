@@ -1,5 +1,9 @@
 #include "HMDDevice.hpp"
+#if defined(win32)
 #include <Windows.h>
+#else
+#include <input/input.hpp>
+#endif
 
 SlimeVRDriver::HMDDevice::HMDDevice(std::string serial, int deviceId):
     serial_(serial), deviceId_(deviceId)
@@ -22,10 +26,17 @@ void SlimeVRDriver::HMDDevice::Update()
     float delta_seconds = GetDriver()->GetLastFrameTime().count() / 1000.0f;
 
     // Get orientation
+    #if defined(win32)
     this->rot_y_ += (1.0f * (GetAsyncKeyState(VK_RIGHT) == 0) - 1.0f * (GetAsyncKeyState(VK_LEFT) == 0)) * delta_seconds;
     this->rot_x_ += (-1.0f * (GetAsyncKeyState(VK_UP) == 0) + 1.0f * (GetAsyncKeyState(VK_DOWN) == 0)) * delta_seconds;
     this->rot_x_ = std::fmax(this->rot_x_, -3.14159f/2);
     this->rot_x_ = std::fmin(this->rot_x_, 3.14159f/2);
+    #else
+    this->rot_y_ += (1.0f * (getKey(KEY_RIGHT) == 0) - 1.0f * (getKey(KEY_LEFT) == 0)) * delta_seconds;
+    this->rot_x_ += (-1.0f * (getKey(KEY_UP) == 0) + 1.0f * (getKey(KEY_DOWN) == 0)) * delta_seconds;
+    this->rot_x_ = std::fmax(this->rot_x_, -3.14159f/2);
+    this->rot_x_ = std::fmin(this->rot_x_, 3.14159f/2);
+    #endif
 
     linalg::vec<float, 4> y_quat{ 0, std::sin(this->rot_y_ / 2), 0, std::cos(this->rot_y_ / 2) };
 
@@ -39,9 +50,15 @@ void SlimeVRDriver::HMDDevice::Update()
     pose.qRotation.z = (float) pose_rot.z;
 
     // Update position based on rotation
+    #if defined(win32)
     linalg::vec<float, 3> forward_vec{-1.0f * (GetAsyncKeyState(0x44) == 0) + 1.0f * (GetAsyncKeyState(0x41) == 0), 0, 0};
     linalg::vec<float, 3> right_vec{0, 0, 1.0f * (GetAsyncKeyState(0x57) == 0) - 1.0f * (GetAsyncKeyState(0x53) == 0) };
     linalg::vec<float, 3> final_dir = forward_vec + right_vec;
+    #else
+    linalg::vec<float, 3> forward_vec{-1.0f * (getKey(0x44) == 0) + 1.0f * (getKey(0x41) == 0), 0, 0};
+    linalg::vec<float, 3> right_vec{0, 0, 1.0f * (getKey(0x57) == 0) - 1.0f * (getKey(0x53) == 0) };
+    linalg::vec<float, 3> final_dir = forward_vec + right_vec;
+    #endif
     if (linalg::length(final_dir) > 0.01) {
         final_dir = linalg::normalize(final_dir) * (float)delta_seconds;
         final_dir = linalg::qrot(pose_rot, final_dir);
@@ -169,7 +186,7 @@ void SlimeVRDriver::HMDDevice::EnterStandby()
 
 void* SlimeVRDriver::HMDDevice::GetComponent(const char* pchComponentNameAndVersion)
 {
-    if (!_stricmp(pchComponentNameAndVersion, vr::IVRDisplayComponent_Version)) {
+    if (!strcasecmp(pchComponentNameAndVersion, vr::IVRDisplayComponent_Version)) {
         return static_cast<vr::IVRDisplayComponent*>(this);
     }
     return nullptr;
