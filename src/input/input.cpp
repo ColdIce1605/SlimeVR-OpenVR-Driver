@@ -33,7 +33,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <dirent.h>
 
 #include <chrono>
 
@@ -163,16 +162,9 @@ static std::chrono::time_point<std::chrono::steady_clock> lastGetKeyTime;
 bool getKey(int key)
 {
     if (!keyboard.isOpen()) {
-        DIR *d;
-        struct dirent *dir;
-        d = opendir("/dev/input/by-id/");
-        if (d) {
-            while ((dir = readdir(d)) != NULL) {
-                printf("%s\n", dir->d_name);
-            }
-            closedir(d);
-        }
-        keyboard.open("/dev/input/by-id/usb-Genius_SlimStar_335-event-kbd");
+        //insert your keyboard here
+        //look in "/dev/input/by-id/" and your keyboard
+        keyboard.open("/dev/input/by-id/ckb-Corsair_Gaming_K55_RGB_Keyboard_vKB_-event");
     }
 
     if (keyboard.isOpen()) {
