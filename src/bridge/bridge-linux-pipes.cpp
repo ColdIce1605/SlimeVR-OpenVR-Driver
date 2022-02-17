@@ -8,7 +8,11 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#define PIPE_NAME "\\\\.\\pipe\\SlimeVRDriver"
+
+// changed from windows version as it seems to cause problems
+// lets make it a little bit more sane looking
+// this change also needs to be done on the server side
+#define PIPE_NAME "/tmp/pipe-SlimeVRDriver"
 
 unsigned long lastReconnectFrame = 0;
 
@@ -84,6 +88,7 @@ void updatePipe(SlimeVRDriver::VRDriver &driver) {
 void resetPipe(SlimeVRDriver::VRDriver &driver) {
     if(fd != -1) {
         close(fd);
+        unlink(PIPE_NAME);
         fd = -1;
         currentBridgeStatus = BRIDGE_DISCONNECTED;
         driver.Log("Pipe was reset");

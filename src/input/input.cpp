@@ -164,7 +164,7 @@ bool getKey(int key)
     if (!keyboard.isOpen()) {
         //insert your keyboard here
         //look in "/dev/input/by-id/" and your keyboard
-        keyboard.open("/dev/input/by-id/ckb-Corsair_Gaming_K55_RGB_Keyboard_vKB_-event");
+        keyboard.open("/dev/input/by-id/usb-Corsair_Corsair_Gaming_K55_RGB_Keyboard_AF2B90C95ADBD7B8F5001BC340048000-event-kbd");
     }
 
     if (keyboard.isOpen()) {
